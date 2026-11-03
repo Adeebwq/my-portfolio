@@ -1,15 +1,16 @@
-import Hero from "./components/sections/hero.jsx";
-import About from "./components/sections/about.jsx";
-import Desktop from "./components/sections/desktop.jsx";
-import PixelBackground from "./components/PixelBackground.jsx";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/home";
+import TechnicalProjects from "./pages/TechnicalProjects";
+import ScrollToTop from "./components/Scrolltotop.jsx";
 
 const App = () => {
   return (
     <>
-      <PixelBackground />
-      <Hero />
-      <About />
-      <Desktop />
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/technical" element={<TechnicalProjects />} />
+      </Routes>
     </>
   );
 };

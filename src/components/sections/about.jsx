@@ -5,41 +5,80 @@ import ThreeDisc from './disc.jsx'
 // Import your images
 import firstImage from '/pic22.jpg'
 import overlayImage from '/image.png'
-import hillimg from '/hill.png'
-// ADD THESE IMPORTS (adjust paths to your actual cloud/bird images)
-import cloudImg from '/clouds 1-Photoroom.png' 
+import cloudImg from '/clouds 1-Photoroom.png'
 import birdImg from '/bird.png'
 
 const About = () => {
   const [popups, setPopups] = useState([])
   const [showOverlay, setShowOverlay] = useState(false)
+
   const sectionRef = useRef(null)
   const popupRefs = useRef([])
   const overlayRef = useRef(null)
-  const hillRef = useRef(null)
-  const isActive = useRef(false)
-  const intervalRef = useRef(null)
-  const timeoutRef = useRef(null) // Added ref to track the delay timer
 
+  const isActive = useRef(false) // Prevents re-triggering while staying on this page
+  const intervalRef = useRef(null)
+  const timeoutRef = useRef(null)
+
+  const scrollLocked = useRef(false)
+  const showOverlayRef = useRef(false)
+
+  // Keep a ref in sync so addPopup always sees the fresh showOverlay value
+  useEffect(() => {
+    showOverlayRef.current = showOverlay
+  }, [showOverlay])
+
+  /* ---------------- Scroll lock helpers ---------------- */
+  const lockScroll = () => {
+    if (scrollLocked.current) return
+    scrollLocked.current = true
+    const sbw = window.innerWidth - document.documentElement.clientWidth
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    document.body.style.paddingRight = sbw > 0 ? `${sbw}px` : ''
+  }
+
+  const unlockScroll = () => {
+    if (!scrollLocked.current) return
+    scrollLocked.current = false
+    document.documentElement.style.overflow = ''
+    document.body.style.overflow = ''
+    document.body.style.paddingRight = ''
+  }
+
+  const snapAndLock = () => {
+    if (!sectionRef.current) return
+    const rect = sectionRef.current.getBoundingClientRect()
+    const absoluteTop = rect.top + window.scrollY
+    window.scrollTo({ top: absoluteTop, behavior: 'auto' })
+    lockScroll()
+  }
+
+  /* ---------------- Popup helpers ---------------- */
   const getRandomPosition = () => {
     if (!sectionRef.current) return { x: 100, y: 100 }
     const rect = sectionRef.current.getBoundingClientRect()
-    const padding = 60
-    const maxX = rect.width - padding
-    const maxY = rect.height - padding
+    const popupWidth = 400
+    const popupHeight = 320
+    const padX = popupWidth / 2 + 20
+    const padY = popupHeight / 2 + 20
+
+    const usableW = Math.max(rect.width - padX * 2, 1)
+    const usableH = Math.max(rect.height - padY * 2, 1)
+
     return {
-      x: padding + Math.random() * maxX,
-      y: padding + Math.random() * maxY
+      x: padX + Math.random() * usableW,
+      y: padY + Math.random() * usableH
     }
   }
 
   const addPopup = () => {
-    if (showOverlay) return
+    if (showOverlayRef.current) return
     const { x, y } = getRandomPosition()
-    const newPopup = { id: Date.now() + Math.random(), x, y }
-    setPopups(prev => [...prev, newPopup])
+    setPopups(prev => [...prev, { id: Date.now() + Math.random(), x, y }])
   }
 
+  // Animate the newest popup + trigger overlay once 25 are on screen
   useEffect(() => {
     if (popups.length === 0) return
     const lastIndex = popups.length - 1
@@ -56,50 +95,47 @@ const About = () => {
     }
   }, [popups, showOverlay])
 
+  // Pop the overlay in + unlock scrolling once the whole sequence is over
   useEffect(() => {
     if (showOverlay && overlayRef.current) {
       gsap.fromTo(overlayRef.current,
         { scale: 0, opacity: 0, rotation: 0 },
         { scale: 1, opacity: 1, duration: 0.6, ease: "elastic.out(1, 0.5)", zIndex: 100 }
       )
+      const t = setTimeout(() => unlockScroll(), 800)
+      return () => clearTimeout(t)
     }
   }, [showOverlay])
 
+  // Trigger the sequence when the section is (mostly) in view
   useEffect(() => {
     if (!sectionRef.current) return
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         const entry = entries[0]
-        if (entry.isIntersecting && !isActive.current && !showOverlay) {
+        if (entry.isIntersecting && !isActive.current) {
           isActive.current = true
-          
-          // 1. Animate the hill sliding up immediately
-          if (hillRef.current) {
-            gsap.fromTo(hillRef.current, 
-              { y: '100%' }, 
-              { y: '0%', duration: 1.2, ease: "power3.out", delay: 0.2 }
-            )
-          }
 
-          // 2. DELAY THE POPUPS by 1.8 seconds (waits for hill to finish)
+          snapAndLock()
+
           timeoutRef.current = setTimeout(() => {
             intervalRef.current = setInterval(() => {
               addPopup()
             }, 100)
-          }, 1800) 
+          }, 1800)
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.85 }
     )
     observer.observe(sectionRef.current)
-    
-    // Cleanup timers when component unmounts
+
     return () => {
       observer.disconnect()
       if (intervalRef.current) clearInterval(intervalRef.current)
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      unlockScroll()
     }
-  }, [showOverlay])
+  }, [])
 
   return (
     <section
@@ -108,45 +144,20 @@ const About = () => {
       style={{
         position: 'relative',
         minHeight: '100vh',
-        // Adds a sky blue color that ensures this section isn't transparently showing empty space
-        background: 'linear-gradient(to bottom, #629DFB, #9AB3DA)', 
-        overflow: 'visible',
+        boxSizing: 'border-box',
+        background: 'linear-gradient(to bottom, #629DFB, #9AB3DA)',
+        overflow: 'hidden',
         padding: '2rem'
       }}
     >
-      
-      {/* BACKGROUND LAYER: FEW CLOUDS & BIRDS (Placed high up) */}
+      {/* BACKGROUND LAYER: CLOUDS & BIRDS */}
       <div className="ambient-sky-layer" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-        {/* A large, slow cloud near the top left */}
         <img src={cloudImg} className="drift-anim" style={{ position: 'absolute', top: '10%', width: '200px', opacity: 0.8, animationDuration: '60s' }} alt="cloud" />
-        {/* A smaller, slightly faster cloud near top right */}
         <img src={cloudImg} className="drift-anim" style={{ position: 'absolute', top: '20%', width: '120px', opacity: 0.5, animationDuration: '45s', animationDelay: '-15s' }} alt="cloud" />
-        {/* A single bird */}
         <img src={birdImg} className="drift-anim" style={{ position: 'absolute', top: '15%', width: '40px', animationDuration: '30s', animationDelay: '-5s' }} alt="bird" />
       </div>
 
-      {/* THE PARALLAX HILL LAYER */}
-      <div 
-        ref={hillRef}
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          width: '100%',
-          height: '35vh',
-          zIndex: 1, 
-          transform: 'translateY(100%)',
-          pointerEvents: 'none'
-        }}
-      >
-        <img 
-          src={hillimg} 
-          alt="Parallax Hill" 
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
-        />
-      </div>
-
-      {/* THE ERROR POPUPS */}
+      {/* ERROR POPUPS */}
       {popups.map((pop, idx) => (
         <img
           key={pop.id}
@@ -161,11 +172,11 @@ const About = () => {
             height: 'auto',
             transform: 'translate(-50%, -50%)',
             pointerEvents: 'none',
-            zIndex: 10 
+            zIndex: 10
           }}
         />
       ))}
-        
+
       {/* OVERLAY WINDOW AND SCROLL DISC */}
       {showOverlay && (
         <div style={{
@@ -173,30 +184,27 @@ const About = () => {
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '800px', 
-          height: '900px', 
+          width: '800px',
+          height: 'min(900px, 85vh)',
           zIndex: 200,
-          pointerEvents: 'none' 
+          pointerEvents: 'none'
         }}>
-          
           <img
             ref={overlayRef}
             src={overlayImage}
             alt="overlay"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }}
           />
-
           <div style={{
             position: 'absolute',
-            right: '30px', 
-            top: '53%', 
+            right: '30px',
+            top: '53%',
             transform: 'translateY(-50%)',
-            zIndex: 300, 
-            pointerEvents: 'auto', 
+            zIndex: 300,
+            pointerEvents: 'auto',
           }}>
             <ThreeDisc radius={180} itemHeight={80} />
           </div>
-
         </div>
       )}
     </section>

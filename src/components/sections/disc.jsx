@@ -2,23 +2,25 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const TECH_ITEMS = [
   { id: 1, name: 'HTML', src: '/html-Photoroom.png' },
-  { id: 2, name: 'CSS', src: '/css-Photoroom.png' },
-  { id: 3, name: 'JavaScript', src: '/js-Photoroom.png' },
+  { id: 2, name: 'CSS', src: '/tailwin css.png' },
+  { id: 3, name: 'JavaScript', src: '/javascript.png' },
   { id: 4, name: 'Figma', src: '/figma-Photoroom.png' },
-  { id: 5, name: 'React', src: '/react-Photoroom.png' },
+  { id: 5, name: 'React', src: '/react.png' },
   { id: 6, name: 'Python', src: '/python-Photoroom.png' },
-  { id: 7, name: 'MySQL', src: '/mysql-Photoroom.png' },
-  { id: 8, name: 'Premiere Pro', src: '/prempro-Photoroom.png' },
+  { id: 7, name: 'MySQL', src: '/my sql.png' },
+  { id: 8, name: 'Premiere Pro', src: '/premiere pro.png' },
   { id: 9, name: 'After Effects', src: '/ae-Photoroom.png' },
   { id: 10, name: 'C', src: '/c-Photoroom.png' },
   { id: 11, name: 'C++', src: '/c++-Photoroom.png' },
+  { id: 12, name: 'kicad', src: '/kicad.png' },
+  { id: 13, name: 'Cavalry', src: '/cavalry.png' },
 ];
 
 export default function Disc({ radius = 150, itemHeight = 100, isAutoRotating = true, delay = 200 }) {
   const [isVisible, setIsVisible] = useState(false); // Controls the pop-up delay state
   const [rotation, setRotation] = useState(0);
   const [isVisualDragging, setIsVisualDragging] = useState(false);
-  
+
   const isDragging = useRef(false);
   const startY = useRef(0);
   const rotationRef = useRef(0);
@@ -47,7 +49,7 @@ export default function Disc({ radius = 150, itemHeight = 100, isAutoRotating = 
     let animationFrameId;
 
     const animate = () => {
-      rotationRef.current -= 0.3; 
+      rotationRef.current -= 0.3;
       setRotation(rotationRef.current);
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -58,7 +60,7 @@ export default function Disc({ radius = 150, itemHeight = 100, isAutoRotating = 
   }, [isVisible, isAutoRotating, isVisualDragging]);
 
   const handleWheel = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     if (e.deltaY > 0) {
       setRotation((prev) => prev - anglePerItem);
     } else {
@@ -78,14 +80,14 @@ export default function Disc({ radius = 150, itemHeight = 100, isAutoRotating = 
       const deltaY = clientY - startY.current;
 
       if (Math.abs(deltaY) > 5) {
-        setRotation((prev) => prev + deltaY * 0.4); 
+        setRotation((prev) => prev + deltaY * 0.4);
         startY.current = clientY;
       }
     };
 
     const onMouseMove = (e) => handleMove(e.clientY);
-    const onMouseUp = () => { 
-      isDragging.current = false; 
+    const onMouseUp = () => {
+      isDragging.current = false;
       setIsVisualDragging(false);
     };
 
@@ -99,7 +101,7 @@ export default function Disc({ radius = 150, itemHeight = 100, isAutoRotating = 
   }, []);
 
   return (
-    <div 
+    <div
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       style={{
@@ -113,7 +115,7 @@ export default function Disc({ radius = 150, itemHeight = 100, isAutoRotating = 
         overflow: 'hidden',
         cursor: isVisualDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
-        
+
         // --- POP UP ANIMATION STYLES ---
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'scale(1)' : 'scale(0.3)',
@@ -130,8 +132,8 @@ export default function Disc({ radius = 150, itemHeight = 100, isAutoRotating = 
         transition: isVisualDragging ? 'none' : 'transform 0.1s linear',
       }}>
         {TECH_ITEMS.map((item, index) => (
-          <div 
-            key={item.id} 
+          <div
+            key={item.id}
             style={{
               position: 'absolute',
               width: '100%',
@@ -145,10 +147,10 @@ export default function Disc({ radius = 150, itemHeight = 100, isAutoRotating = 
               transform: `rotateX(${anglePerItem * index}deg) translateZ(${radius}px)`,
             }}
           >
-            <img 
-              src={item.src} 
-              alt={item.name} 
-              style={{ maxWidth: '85%', maxHeight: '85%', objectFit: 'contain', pointerEvents: 'none' }} 
+            <img
+              src={item.src}
+              alt={item.name}
+              style={{ maxWidth: '85%', maxHeight: '85%', objectFit: 'contain', pointerEvents: 'none' }}
             />
           </div>
         ))}
