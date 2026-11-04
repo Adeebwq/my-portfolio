@@ -14,16 +14,17 @@ const About = () => {
 
   const sectionRef = useRef(null)
   const popupRefs = useRef([])
-  const overlayRef = useRef(null)
 
-  const isActive = useRef(false) // Prevents re-triggering while staying on this page
+  // 1. We use a container ref so the image AND the disc animate together
+  const overlayContainerRef = useRef(null)
+
+  const isActive = useRef(false)
   const intervalRef = useRef(null)
   const timeoutRef = useRef(null)
 
   const scrollLocked = useRef(false)
   const showOverlayRef = useRef(false)
 
-  // Keep a ref in sync so addPopup always sees the fresh showOverlay value
   useEffect(() => {
     showOverlayRef.current = showOverlay
   }, [showOverlay])
@@ -78,15 +79,19 @@ const About = () => {
     setPopups(prev => [...prev, { id: Date.now() + Math.random(), x, y }])
   }
 
-  // Animate the newest popup + trigger overlay once 25 are on screen
+  // Animate the newest popup
   useEffect(() => {
     if (popups.length === 0) return
     const lastIndex = popups.length - 1
     const el = popupRefs.current[lastIndex]
     if (el) {
+      // Performance fix: Tell browser to prep GPU for animation
+      gsap.set(el, { willChange: "transform, opacity" })
+
+      // Removed rotation:0 since it wasn't doing anything, saving CPU
       gsap.fromTo(el,
-        { scale: 0, opacity: 0, rotation: 0 },
-        { scale: 1, opacity: 1, rotation: 0, duration: 0, ease: "back.out(0.2)" }
+        { scale: 0, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0, ease: "back.out(0.2)" }
       )
     }
     if (popups.length >= 25 && !showOverlay) {
@@ -95,11 +100,14 @@ const About = () => {
     }
   }, [popups, showOverlay])
 
-  // Pop the overlay in + unlock scrolling once the whole sequence is over
+  // 2. FIXED: Animate the CONTAINER so the disc and image appear together
   useEffect(() => {
-    if (showOverlay && overlayRef.current) {
-      gsap.fromTo(overlayRef.current,
-        { scale: 0, opacity: 0, rotation: 0 },
+    if (showOverlay && overlayContainerRef.current) {
+      // Tell browser to prep GPU
+      gsap.set(overlayContainerRef.current, { willChange: "transform, opacity" })
+
+      gsap.fromTo(overlayContainerRef.current,
+        { scale: 0, opacity: 0 },
         { scale: 1, opacity: 1, duration: 0.6, ease: "elastic.out(1, 0.5)", zIndex: 100 }
       )
       const t = setTimeout(() => unlockScroll(), 800)
@@ -163,46 +171,54 @@ const About = () => {
           key={pop.id}
           ref={el => popupRefs.current[idx] = el}
           src={firstImage}
+          loading="lazy" // Performance fix: don't load all 25 at once
           alt="popup"
           style={{
             position: 'absolute',
             left: pop.x,
             top: pop.y,
-            width: '400px',
+            width: '85vw',
+            maxWidth: '400px',
             height: 'auto',
             transform: 'translate(-50%, -50%)',
             pointerEvents: 'none',
-            zIndex: 10
+            zIndex: 10,
+            willChange: 'transform, opacity' // Performance fix
           }}
         />
       ))}
 
       {/* OVERLAY WINDOW AND SCROLL DISC */}
       {showOverlay && (
-        <div style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '800px',
-          height: 'min(900px, 85vh)',
-          zIndex: 200,
-          pointerEvents: 'none'
-        }}>
+        <div
+          ref={overlayContainerRef} // <-- Ref is now on the container
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90vw',
+            maxWidth: '800px',
+            height: 'min(900px, 75vh)',
+            zIndex: 200,
+            pointerEvents: 'none',
+            willChange: 'transform, opacity' // Performance fix
+          }}
+        >
           <img
-            ref={overlayRef}
             src={overlayImage}
             alt="overlay"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }}
           />
           <div style={{
             position: 'absolute',
-            right: '30px',
+            right: '5%',
             top: '53%',
-            transform: 'translateY(-50%)',
+            transform: 'translateY(-50%) scale(0.6)',
             zIndex: 300,
             pointerEvents: 'auto',
-          }}>
+          }}
+            className="md:scale-100 md:right-[30px]">
             <ThreeDisc radius={180} itemHeight={80} />
           </div>
         </div>

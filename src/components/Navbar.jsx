@@ -14,12 +14,12 @@ const Navbar = ({ setContactOpen }) => {
         scrollToSection('desktop');
     };
 
-    const linkClass = "relative group text-black uppercase tracking-widest text-sm md:text-base font-bold cursor-pointer transition-colors hover:text-gray-600";
+    const linkClass = "relative group text-black uppercase tracking-widest text-xs md:text-base font-bold cursor-pointer transition-colors hover:text-gray-600";
     const underlineClass = "absolute left-0 bottom-[-4px] w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-out";
 
     return (
         <nav
-            className="fixed top-0 left-0 w-full z-[99999] flex justify-center gap-6 md:gap-12 px-6 py-8"
+            className="fixed top-0 left-0 w-full z-[99999] flex justify-center gap-3 md:gap-10 px-2 py-4 md:py-8 flex-wrap"
             style={{
                 fontFamily: "'Bitcount Prop double'",
             }}

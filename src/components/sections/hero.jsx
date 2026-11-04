@@ -52,8 +52,8 @@ const Hero = () => {
           {/* LEFT SIDE: Text & Button */}
           <div className='w-full md:w-1/2 flex flex-col gap-7'>
             <div className='hero-text mt-10 ml-3'>
-              <h1>Hey! I'm</h1>
-              <h1>Adeeb Mohamed</h1>
+              <h1 className="text-4xl md:text-6xl font-bold">Hey! I'm</h1>
+              <h1 className="text-4xl md:text-6xl font-bold">Adeeb Mohamed</h1>
             </div>
             <div
               className="flex justify-start ml-3 cursor-pointer"
@@ -73,7 +73,7 @@ const Hero = () => {
             className='w-full md:w-1/2 flex justify-center md:justify-end mt-10 md:mt-0'
           >
             <div
-              className="w-full max-w-[340px] transition-transform duration-300 hover:-translate-y-2 hover:-translate-x-2 flex flex-col"
+              className="w-[85vw] max-w-[300px] md:max-w-[340px] transition-transform duration-300 hover:-translate-y-2 hover:-translate-x-2 flex flex-col"
               style={{
                 background: '#ece9d8',
                 border: '4px solid #000',

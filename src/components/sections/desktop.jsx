@@ -402,8 +402,8 @@ export default function RetroDesktop({
             left: '50%',
             // transform: 'translate(-50%, -50%)', <-- REMOVED
             zIndex: 2000,
-            width: '550px',
-            maxWidth: '90vw',
+            width: '90vw',
+            maxWidth: '550px',
             background: '#ece9d8',
             border: '2px solid #0058e6',
             borderTopColor: '#3a6ea5',
