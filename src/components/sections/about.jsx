@@ -59,10 +59,13 @@ const About = () => {
   const getRandomPosition = () => {
     if (!sectionRef.current) return { x: 100, y: 100 }
     const rect = sectionRef.current.getBoundingClientRect()
-    const popupWidth = 400
-    const popupHeight = 320
-    const padX = popupWidth / 2 + 20
-    const padY = popupHeight / 2 + 20
+
+    // 👇 DYNAMIC SIZE (matches the 85vw max 400px we set on the img)
+    const popupWidth = Math.min(rect.width * 0.85, 400)
+    const popupHeight = popupWidth * 0.8
+
+    const padX = popupWidth / 2 + 10
+    const padY = popupHeight / 2 + 10
 
     const usableW = Math.max(rect.width - padX * 2, 1)
     const usableH = Math.max(rect.height - padY * 2, 1)
@@ -197,7 +200,7 @@ const About = () => {
             left: '50%',
             top: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '90vw',
+            width: '95vw',
             maxWidth: '800px',
             height: 'min(900px, 75vh)',
             zIndex: 200,
@@ -218,7 +221,8 @@ const About = () => {
             zIndex: 300,
             pointerEvents: 'auto',
           }}
-            className="md:scale-100 md:right-[30px]">
+            className="absolute right-0 md:right-[30px] top-[53%] -translate-y-1/2 scale-[0.45] md:scale-100 origin-right z-[300] pointer-events-auto"
+          >
             <ThreeDisc radius={180} itemHeight={80} />
           </div>
         </div>

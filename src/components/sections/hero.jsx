@@ -50,10 +50,10 @@ const Hero = () => {
         <div className='max-w-7xl w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-12'>
 
           {/* LEFT SIDE: Text & Button */}
-          <div className='w-full md:w-1/2 flex flex-col gap-7'>
+          <div className='w-full md:w-1/2 flex flex-col gap-7 pt-32 md:pt-0'>
             <div className='hero-text mt-10 ml-3'>
-              <h1 className="text-4xl md:text-6xl font-bold">Hey! I'm</h1>
-              <h1 className="text-4xl md:text-6xl font-bold">Adeeb Mohamed</h1>
+              <h1>Hey! I'm</h1>
+              <h1>Adeeb Mohamed</h1>
             </div>
             <div
               className="flex justify-start ml-3 cursor-pointer"
