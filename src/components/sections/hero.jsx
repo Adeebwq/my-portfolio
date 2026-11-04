@@ -2,7 +2,7 @@ import Button from '../button.jsx'
 import React, { useRef } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from "gsap"
-import PixelBackground from '../PixelBackground.jsx'
+import PixelBackground from '../pixelbackground.jsx'
 
 const Hero = () => {
   const buttonRef = useRef(null)
